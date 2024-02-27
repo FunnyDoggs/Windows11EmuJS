@@ -82,28 +82,6 @@ class Window {
   }
 }
 
-function toggleStartMenu() {
-  const startMenu = document.querySelector('.start-menu');
-  startMenu.style.display = startMenu.style.display === 'block' ? 'none' : 'block';
-}
-
-function updateStartMenu() {
-  const startMenu = document.querySelector('.start-menu');
-  startMenu.innerHTML = '';
-
-  Window.instances.forEach((window, index) => {
-    const entry = document.createElement('div');
-    entry.className = 'start-menu-entry';
-    entry.textContent = `Window ${index + 1}`;
-    entry.addEventListener('click', () => {
-      window.windowDiv.style.display = 'block';
-      window.windowDiv.style.zIndex = Window.zIndex++;
-    });
-    startMenu.appendChild(entry);
-  });
-}
-
-//browser
 class BrowserWindow extends Window {
   constructor() {
     super('Browser', '');
@@ -143,7 +121,7 @@ class BrowserWindow extends Window {
     navigationControls.appendChild(reloadButton);
     navigationControls.appendChild(urlInput);
 
-    this.windowDiv.querySelector('.title-bar').appendChild(navigationControls);
+    this.titleBar.appendChild(navigationControls);
   }
 
   loadBrowserContent(url) {
@@ -174,13 +152,32 @@ class BrowserWindow extends Window {
   }
 }
 
-// Override the closeWindow method for the BrowserWindow
 BrowserWindow.prototype.closeWindow = function () {
-  // You can add additional logic specific to the browser window if needed
   this.windowDiv.remove();
   Window.instances = Window.instances.filter(instance => instance !== this);
   updateStartMenu();
 };
+
+function toggleStartMenu() {
+  const startMenu = document.querySelector('.start-menu');
+  startMenu.style.display = startMenu.style.display === 'block' ? 'none' : 'block';
+}
+
+function updateStartMenu() {
+  const startMenu = document.querySelector('.start-menu');
+  startMenu.innerHTML = '';
+
+  Window.instances.forEach((window, index) => {
+    const entry = document.createElement('div');
+    entry.className = 'start-menu-entry';
+    entry.textContent = `Window ${index + 1}`;
+    entry.addEventListener('click', () => {
+      window.windowDiv.style.display = 'block';
+      window.windowDiv.style.zIndex = Window.zIndex++;
+    });
+    startMenu.appendChild(entry);
+  });
+}
 
 window.addEventListener('DOMContentLoaded', () => {
   new Window('My Window 1', 'This is the content of Window 1.');
