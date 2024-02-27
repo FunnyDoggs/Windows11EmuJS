@@ -8,6 +8,36 @@
     body {
       margin: 0;
       overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .taskbar {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      height: 40px;
+      background-color: #2a2a2a;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 10px;
+      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .start-menu {
+      position: fixed;
+      bottom: 40px;
+      left: 0;
+      width: 200px;
+      height: 300px;
+      background-color: #2a2a2a;
+      display: none;
+      box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+      z-index: 2;
+    }
+
+    .start-button {
+      cursor: pointer;
     }
 
     .window {
@@ -16,10 +46,42 @@
       background-color: #fff;
       padding: 10px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .title-bar {
+      background-color: #4285f4;
+      color: #fff;
+      font-weight: bold;
+      padding: 5px;
+      border-bottom: 1px solid #000;
+      cursor: move;
+      user-select: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .title-bar button {
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
+
+<div class="taskbar">
+  <div class="start-button" onclick="toggleStartMenu()">Start</div>
+</div>
+
+<div class="start-menu">
+  <div>Programs</div>
+  <div>Documents</div>
+  <div>Settings</div>
+</div>
 
 <script>
   let zIndex = 1;
@@ -30,19 +92,32 @@
     windowDiv.style.zIndex = zIndex++;
     
     const titleBar = document.createElement('div');
+    titleBar.className = 'title-bar';
     titleBar.textContent = title;
-    titleBar.style.cursor = 'move';
-    titleBar.style.userSelect = 'none';
-    titleBar.style.padding = '5px';
-    titleBar.style.backgroundColor = '#4285f4';
-    titleBar.style.color = '#fff';
-    titleBar.style.fontWeight = 'bold';
-    titleBar.style.borderBottom = '1px solid #000';
-    titleBar.style.display = 'flex';
-    titleBar.style.justifyContent = 'space-between';
-    titleBar.style.alignItems = 'center';
 
-    titleBar.addEventListener('mousedown', startDragging);
+    const minimizeButton = document.createElement('button');
+    minimizeButton.textContent = '_';
+    minimizeButton.addEventListener('click', () => windowDiv.style.display = 'none');
+
+    const maximizeButton = document.createElement('button');
+    maximizeButton.textContent = '□';
+    maximizeButton.addEventListener('click', () => {
+      if (windowDiv.style.width === '100%' && windowDiv.style.height === '100%') {
+        windowDiv.style.width = '400px';
+        windowDiv.style.height = '300px';
+      } else {
+        windowDiv.style.width = '100%';
+        windowDiv.style.height = '100%';
+      }
+    });
+
+    const closeButton = document.createElement('button');
+    closeButton.textContent = 'X';
+    closeButton.addEventListener('click', () => windowDiv.remove());
+
+    titleBar.appendChild(minimizeButton);
+    titleBar.appendChild(maximizeButton);
+    titleBar.appendChild(closeButton);
 
     windowDiv.appendChild(titleBar);
 
@@ -54,13 +129,21 @@
 
     document.body.appendChild(windowDiv);
 
+    makeDraggable(titleBar, windowDiv);
+  }
+
+  function makeDraggable(dragHandle, draggableElement) {
+    let offsetX, offsetY;
+
+    dragHandle.addEventListener('mousedown', startDragging);
+
     function startDragging(e) {
-      let offsetX = e.clientX - windowDiv.getBoundingClientRect().left;
-      let offsetY = e.clientY - windowDiv.getBoundingClientRect().top;
+      offsetX = e.clientX - draggableElement.getBoundingClientRect().left;
+      offsetY = e.clientY - draggableElement.getBoundingClientRect().top;
 
       function handleMouseMove(e) {
-        windowDiv.style.left = e.clientX - offsetX + 'px';
-        windowDiv.style.top = e.clientY - offsetY + 'px';
+        draggableElement.style.left = e.clientX - offsetX + 'px';
+        draggableElement.style.top = e.clientY - offsetY + 'px';
       }
 
       function handleMouseUp() {
@@ -71,6 +154,11 @@
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
     }
+  }
+
+  function toggleStartMenu() {
+    const startMenu = document.querySelector('.start-menu');
+    startMenu.style.display = startMenu.style.display === 'block' ? 'none' : 'block';
   }
 
   // Example usage
