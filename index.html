@@ -34,6 +34,7 @@
       display: none;
       box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
       z-index: 2;
+      overflow-y: auto;
     }
 
     .start-button {
@@ -69,6 +70,12 @@
       cursor: pointer;
       font-size: 14px;
     }
+
+    .start-menu-entry {
+      padding: 10px;
+      cursor: pointer;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -78,13 +85,11 @@
 </div>
 
 <div class="start-menu">
-  <div>Programs</div>
-  <div>Documents</div>
-  <div>Settings</div>
 </div>
 
 <script>
   class Window {
+    static instances = [];
     static zIndex = 1;
 
     constructor(title, content) {
@@ -106,7 +111,7 @@
 
       this.closeButton = document.createElement('button');
       this.closeButton.textContent = 'X';
-      this.closeButton.addEventListener('click', () => this.windowDiv.remove());
+      this.closeButton.addEventListener('click', () => this.closeWindow());
 
       this.titleBar.appendChild(this.minimizeButton);
       this.titleBar.appendChild(this.maximizeButton);
@@ -123,6 +128,9 @@
       document.body.appendChild(this.windowDiv);
 
       this.makeDraggable();
+
+      Window.instances.push(this);
+      updateStartMenu();
     }
 
     toggleMaximize() {
@@ -156,11 +164,30 @@
         document.addEventListener('mouseup', handleMouseUp);
       });
     }
+
+    closeWindow() {
+      this.windowDiv.remove();
+      Window.instances = Window.instances.filter(instance => instance !== this);
+      updateStartMenu();
+    }
   }
 
   function toggleStartMenu() {
     const startMenu = document.querySelector('.start-menu');
     startMenu.style.display = startMenu.style.display === 'block' ? 'none' : 'block';
+  }
+
+  function updateStartMenu() {
+    const startMenu = document.querySelector('.start-menu');
+    startMenu.innerHTML = '';
+
+    Window.instances.forEach((window, index) => {
+      const entry = document.createElement('div');
+      entry.className = 'start-menu-entry';
+      entry.textContent = `Window ${index + 1}`;
+      entry.addEventListener('click', () => window.windowDiv.style.display = 'block');
+      startMenu.appendChild(entry);
+    });
   }
 
   // Example usage
