@@ -103,19 +103,12 @@ function updateStartMenu() {
   });
 }
 
+//browser
 class BrowserWindow extends Window {
   constructor() {
     super('Browser', '');
-    this.loadBrowserContent();
     this.createNavigationControls();
-  }
-
-  loadBrowserContent(url = 'https://www.example.com') {
-    const iframe = document.createElement('iframe');
-    iframe.src = url;
-    iframe.style.width = '100%';
-    iframe.style.height = 'calc(100% - 40px)';
-    this.windowDiv.querySelector('.window').appendChild(iframe);
+    this.loadBrowserContent('https://www.example.com');
   }
 
   createNavigationControls() {
@@ -151,6 +144,15 @@ class BrowserWindow extends Window {
     navigationControls.appendChild(urlInput);
 
     this.windowDiv.querySelector('.title-bar').appendChild(navigationControls);
+  }
+
+  loadBrowserContent(url) {
+    const iframe = document.createElement('iframe');
+    iframe.src = url;
+    iframe.style.width = '100%';
+    iframe.style.height = 'calc(100% - 40px)'; // Adjusted height to accommodate navigation controls
+    this.windowDiv.querySelector('.window').innerHTML = ''; // Clear existing content
+    this.windowDiv.querySelector('.window').appendChild(iframe);
   }
 
   navigate(action) {
