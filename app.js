@@ -107,3 +107,31 @@ window.addEventListener('DOMContentLoaded', () => {
   new Window('My Window 1', 'This is the content of Window 1.');
   new Window('My Window 2', 'This is the content of Window 2.');
 });
+class BrowserWindow extends Window {
+  constructor() {
+    super('Browser', '');
+    this.loadBrowserContent();
+  }
+
+  loadBrowserContent() {
+    const iframe = document.createElement('iframe');
+    iframe.src = 'https://www.example.com'; // You can set the default URL here
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    this.windowDiv.querySelector('.window').appendChild(iframe);
+  }
+}
+
+// Override the closeWindow method for the BrowserWindow
+BrowserWindow.prototype.closeWindow = function () {
+  // You can add additional logic specific to the browser window if needed
+  this.windowDiv.remove();
+  Window.instances = Window.instances.filter(instance => instance !== this);
+  updateStartMenu();
+};
+
+window.addEventListener('DOMContentLoaded', () => {
+  new Window('My Window 1', 'This is the content of Window 1.');
+  new Window('My Window 2', 'This is the content of Window 2.');
+  new BrowserWindow();
+});
