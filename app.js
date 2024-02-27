@@ -103,22 +103,72 @@ function updateStartMenu() {
   });
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  new Window('My Window 1', 'This is the content of Window 1.');
-  new Window('My Window 2', 'This is the content of Window 2.');
-});
 class BrowserWindow extends Window {
   constructor() {
     super('Browser', '');
     this.loadBrowserContent();
+    this.createNavigationControls();
   }
 
-  loadBrowserContent() {
+  loadBrowserContent(url = 'https://www.example.com') {
     const iframe = document.createElement('iframe');
-    iframe.src = 'https://www.example.com'; // You can set the default URL here
+    iframe.src = url;
     iframe.style.width = '100%';
-    iframe.style.height = '100%';
+    iframe.style.height = 'calc(100% - 40px)';
     this.windowDiv.querySelector('.window').appendChild(iframe);
+  }
+
+  createNavigationControls() {
+    const navigationControls = document.createElement('div');
+    navigationControls.style.display = 'flex';
+    navigationControls.style.alignItems = 'center';
+
+    const backButton = document.createElement('button');
+    backButton.textContent = '◀';
+    backButton.addEventListener('click', () => this.navigate('back'));
+
+    const forwardButton = document.createElement('button');
+    forwardButton.textContent = '▶';
+    forwardButton.addEventListener('click', () => this.navigate('forward'));
+
+    const reloadButton = document.createElement('button');
+    reloadButton.textContent = '↻';
+    reloadButton.addEventListener('click', () => this.navigate('reload'));
+
+    const urlInput = document.createElement('input');
+    urlInput.type = 'text';
+    urlInput.style.flexGrow = 1;
+    urlInput.placeholder = 'Enter URL and press Enter';
+    urlInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        this.loadBrowserContent(urlInput.value);
+      }
+    });
+
+    navigationControls.appendChild(backButton);
+    navigationControls.appendChild(forwardButton);
+    navigationControls.appendChild(reloadButton);
+    navigationControls.appendChild(urlInput);
+
+    this.windowDiv.querySelector('.title-bar').appendChild(navigationControls);
+  }
+
+  navigate(action) {
+    const iframe = this.windowDiv.querySelector('iframe');
+
+    switch (action) {
+      case 'back':
+        iframe.contentWindow.history.back();
+        break;
+      case 'forward':
+        iframe.contentWindow.history.forward();
+        break;
+      case 'reload':
+        iframe.contentWindow.location.reload();
+        break;
+      default:
+        break;
+    }
   }
 }
 
