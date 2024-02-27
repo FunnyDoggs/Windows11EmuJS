@@ -7,7 +7,206 @@
   <style>
     body {
       margin: 0;
+      overflow: hidden;<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Windows 11 Emulator</title>
+  <style>
+    body {
+      margin: 0;
       overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .taskbar {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      height: 40px;
+      background-color: #2a2a2a;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 10px;
+      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .start-menu {
+      position: fixed;
+      bottom: 40px;
+      left: 0;
+      width: 200px;
+      height: 300px;
+      background-color: #2a2a2a;
+      display: none;
+      box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+      z-index: 2;
+      overflow-y: auto;
+    }
+
+    .start-button {
+      cursor: pointer;
+    }
+
+    .window {
+      position: absolute;
+      border: 1px solid #000;
+      background-color: #fff;
+      padding: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .title-bar {
+      background-color: #4285f4;
+      color: #fff;
+      font-weight: bold;
+      padding: 5px;
+      border-bottom: 1px solid #000;
+      cursor: move;
+      user-select: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .title-bar button {
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .start-menu-entry {
+      padding: 10px;
+      cursor: pointer;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+<div class="taskbar">
+  <div class="start-button" onclick="toggleStartMenu()">Start</div>
+</div>
+
+<div class="start-menu">
+</div>
+
+<script>
+  class Window {
+    static instances = [];
+    static zIndex = 1;
+
+    constructor(title, content) {
+      this.windowDiv = document.createElement('div');
+      this.windowDiv.className = 'window';
+      this.windowDiv.style.zIndex = Window.zIndex++;
+
+      this.titleBar = document.createElement('div');
+      this.titleBar.className = 'title-bar';
+      this.titleBar.textContent = title;
+
+      this.minimizeButton = document.createElement('button');
+      this.minimizeButton.textContent = '_';
+      this.minimizeButton.addEventListener('click', () => this.windowDiv.style.display = 'none');
+
+      this.maximizeButton = document.createElement('button');
+      this.maximizeButton.textContent = '□';
+      this.maximizeButton.addEventListener('click', () => this.toggleMaximize());
+
+      this.closeButton = document.createElement('button');
+      this.closeButton.textContent = 'X';
+      this.closeButton.addEventListener('click', () => this.closeWindow());
+
+      this.titleBar.appendChild(this.minimizeButton);
+      this.titleBar.appendChild(this.maximizeButton);
+      this.titleBar.appendChild(this.closeButton);
+
+      this.windowDiv.appendChild(this.titleBar);
+
+      const contentDiv = document.createElement('div');
+      contentDiv.innerHTML = content;
+      contentDiv.style.padding = '10px';
+
+      this.windowDiv.appendChild(contentDiv);
+
+      document.body.appendChild(this.windowDiv);
+
+      this.makeDraggable();
+
+      Window.instances.push(this);
+      updateStartMenu();
+    }
+
+    toggleMaximize() {
+      if (this.windowDiv.style.width === '100%' && this.windowDiv.style.height === '100%') {
+        this.windowDiv.style.width = '400px';
+        this.windowDiv.style.height = '300px';
+      } else {
+        this.windowDiv.style.width = '100%';
+        this.windowDiv.style.height = '100%';
+      }
+    }
+
+    makeDraggable() {
+      let offsetX, offsetY;
+
+      this.titleBar.addEventListener('mousedown', (e) => {
+        offsetX = e.clientX - this.windowDiv.getBoundingClientRect().left;
+        offsetY = e.clientY - this.windowDiv.getBoundingClientRect().top;
+
+        const handleMouseMove = (e) => {
+          this.windowDiv.style.left = e.clientX - offsetX + 'px';
+          this.windowDiv.style.top = e.clientY - offsetY + 'px';
+        };
+
+        const handleMouseUp = () => {
+          document.removeEventListener('mousemove', handleMouseMove);
+          document.removeEventListener('mouseup', handleMouseUp);
+        };
+
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+      });
+    }
+
+    closeWindow() {
+      this.windowDiv.remove();
+      Window.instances = Window.instances.filter(instance => instance !== this);
+      updateStartMenu();
+    }
+  }
+
+  function toggleStartMenu() {
+    const startMenu = document.querySelector('.start-menu');
+    startMenu.style.display = startMenu.style.display === 'block' ? 'none' : 'block';
+  }
+
+  function updateStartMenu() {
+    const startMenu = document.querySelector('.start-menu');
+    startMenu.innerHTML = '';
+
+    Window.instances.forEach((window, index) => {
+      const entry = document.createElement('div');
+      entry.className = 'start-menu-entry';
+      entry.textContent = `Window ${index + 1}`;
+      entry.addEventListener('click', () => window.windowDiv.style.display = 'block');
+      startMenu.appendChild(entry);
+    });
+  }
+
+  // Example usage
+  new Window('My Window 1', 'This is the content of Window 1.');
+  new Window('My Window 2', 'This is the content of Window 2.');
+</script>
+
+</body>
+</html>
+
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
