@@ -83,10 +83,10 @@ class Window {
 }
 
 class BrowserWindow extends Window {
-  constructor() {
+  constructor(initialUrl) {
     super('Browser', '');
     this.createNavigationControls();
-    this.loadBrowserContent('https://www.example.com');
+    this.loadBrowserContent(initialUrl || 'https://www.example.com');
   }
 
   createNavigationControls() {
@@ -182,5 +182,8 @@ function updateStartMenu() {
 window.addEventListener('DOMContentLoaded', () => {
   new Window('My Window 1', 'This is the content of Window 1.');
   new Window('My Window 2', 'This is the content of Window 2.');
-  new BrowserWindow();
+
+  // Prompt user for initial URL
+  const initialUrl = prompt('Enter the initial URL for the browser window:');
+  new BrowserWindow(initialUrl);
 });
