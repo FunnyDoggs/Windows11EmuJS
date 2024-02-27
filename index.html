@@ -84,75 +84,77 @@
 </div>
 
 <script>
-  let zIndex = 1;
+  class Window {
+    static zIndex = 1;
 
-  function createWindow(title, content) {
-    const windowDiv = document.createElement('div');
-    windowDiv.className = 'window';
-    windowDiv.style.zIndex = zIndex++;
-    
-    const titleBar = document.createElement('div');
-    titleBar.className = 'title-bar';
-    titleBar.textContent = title;
+    constructor(title, content) {
+      this.windowDiv = document.createElement('div');
+      this.windowDiv.className = 'window';
+      this.windowDiv.style.zIndex = Window.zIndex++;
 
-    const minimizeButton = document.createElement('button');
-    minimizeButton.textContent = '_';
-    minimizeButton.addEventListener('click', () => windowDiv.style.display = 'none');
+      this.titleBar = document.createElement('div');
+      this.titleBar.className = 'title-bar';
+      this.titleBar.textContent = title;
 
-    const maximizeButton = document.createElement('button');
-    maximizeButton.textContent = '□';
-    maximizeButton.addEventListener('click', () => {
-      if (windowDiv.style.width === '100%' && windowDiv.style.height === '100%') {
-        windowDiv.style.width = '400px';
-        windowDiv.style.height = '300px';
+      this.minimizeButton = document.createElement('button');
+      this.minimizeButton.textContent = '_';
+      this.minimizeButton.addEventListener('click', () => this.windowDiv.style.display = 'none');
+
+      this.maximizeButton = document.createElement('button');
+      this.maximizeButton.textContent = '□';
+      this.maximizeButton.addEventListener('click', () => this.toggleMaximize());
+
+      this.closeButton = document.createElement('button');
+      this.closeButton.textContent = 'X';
+      this.closeButton.addEventListener('click', () => this.windowDiv.remove());
+
+      this.titleBar.appendChild(this.minimizeButton);
+      this.titleBar.appendChild(this.maximizeButton);
+      this.titleBar.appendChild(this.closeButton);
+
+      this.windowDiv.appendChild(this.titleBar);
+
+      const contentDiv = document.createElement('div');
+      contentDiv.innerHTML = content;
+      contentDiv.style.padding = '10px';
+
+      this.windowDiv.appendChild(contentDiv);
+
+      document.body.appendChild(this.windowDiv);
+
+      this.makeDraggable();
+    }
+
+    toggleMaximize() {
+      if (this.windowDiv.style.width === '100%' && this.windowDiv.style.height === '100%') {
+        this.windowDiv.style.width = '400px';
+        this.windowDiv.style.height = '300px';
       } else {
-        windowDiv.style.width = '100%';
-        windowDiv.style.height = '100%';
+        this.windowDiv.style.width = '100%';
+        this.windowDiv.style.height = '100%';
       }
-    });
+    }
 
-    const closeButton = document.createElement('button');
-    closeButton.textContent = 'X';
-    closeButton.addEventListener('click', () => windowDiv.remove());
+    makeDraggable() {
+      let offsetX, offsetY;
 
-    titleBar.appendChild(minimizeButton);
-    titleBar.appendChild(maximizeButton);
-    titleBar.appendChild(closeButton);
+      this.titleBar.addEventListener('mousedown', (e) => {
+        offsetX = e.clientX - this.windowDiv.getBoundingClientRect().left;
+        offsetY = e.clientY - this.windowDiv.getBoundingClientRect().top;
 
-    windowDiv.appendChild(titleBar);
+        const handleMouseMove = (e) => {
+          this.windowDiv.style.left = e.clientX - offsetX + 'px';
+          this.windowDiv.style.top = e.clientY - offsetY + 'px';
+        };
 
-    const contentDiv = document.createElement('div');
-    contentDiv.innerHTML = content;
-    contentDiv.style.padding = '10px';
+        const handleMouseUp = () => {
+          document.removeEventListener('mousemove', handleMouseMove);
+          document.removeEventListener('mouseup', handleMouseUp);
+        };
 
-    windowDiv.appendChild(contentDiv);
-
-    document.body.appendChild(windowDiv);
-
-    makeDraggable(titleBar, windowDiv);
-  }
-
-  function makeDraggable(dragHandle, draggableElement) {
-    let offsetX, offsetY;
-
-    dragHandle.addEventListener('mousedown', startDragging);
-
-    function startDragging(e) {
-      offsetX = e.clientX - draggableElement.getBoundingClientRect().left;
-      offsetY = e.clientY - draggableElement.getBoundingClientRect().top;
-
-      function handleMouseMove(e) {
-        draggableElement.style.left = e.clientX - offsetX + 'px';
-        draggableElement.style.top = e.clientY - offsetY + 'px';
-      }
-
-      function handleMouseUp() {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      }
-
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+      });
     }
   }
 
@@ -162,8 +164,8 @@
   }
 
   // Example usage
-  createWindow('My Window 1', 'This is the content of Window 1.');
-  createWindow('My Window 2', 'This is the content of Window 2.');
+  new Window('My Window 1', 'This is the content of Window 1.');
+  new Window('My Window 2', 'This is the content of Window 2.');
 </script>
 
 </body>
